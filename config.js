@@ -1,6 +1,17 @@
-const APP_VERSION = "1.2";
+const APP_VERSION = "1.3";
 
 const APP_CHANGELOG = [
+  {
+    version: "1.3",
+    groups: [
+      {
+        title: "Alle Nutzer statt nur Gruppe „Trainer“",
+        items: [
+          "Die Übersicht zeigt jetzt jedes Nutzerkonto, nicht mehr nur Mitglieder der Gruppe „Trainer“."
+        ]
+      }
+    ]
+  },
   {
     version: "1.2",
     groups: [

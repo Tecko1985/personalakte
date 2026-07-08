@@ -4,7 +4,6 @@ let currentVorname = null;
 let currentNachname = null;
 
 let allTrainers = [];       // roher trainers[]-Array aus fetchOverview()
-let trainerGroupExists = true;
 let ubersichtSuche = "";
 let ubersichtLizenz = "";
 let archivSuche = "";
@@ -114,10 +113,7 @@ function trainercheckisteBadges(t) {
 }
 
 function renderUebersicht() {
-  document.getElementById("uebersicht-no-group").style.display = trainerGroupExists ? "none" : "block";
   const wrap = document.getElementById("uebersicht-rows");
-  if (!trainerGroupExists) { wrap.innerHTML = ""; document.getElementById("uebersicht-empty").style.display = "none"; return; }
-
   const suche = ubersichtSuche.trim().toLowerCase();
   const rows = allTrainers
     .filter((t) => !t.archiviert)
@@ -320,7 +316,6 @@ async function doReactivate(username) {
 
 async function loadOverviewAndRender() {
   const overview = await fetchOverview();
-  trainerGroupExists = !!overview.trainerGroupExists;
   allTrainers = Array.isArray(overview.trainers) ? overview.trainers : [];
   populateLizenzFilter();
   renderUebersicht();
