@@ -198,15 +198,16 @@ function renderDetail(t) {
   document.getElementById("detail-trainerkodex").innerHTML += `<div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.trainerkodex}" target="_blank" rel="noopener">Trainerkodex öffnen</a></div>`;
 
   const tdStatusLabel = { unvollstaendig: "Unvollständig", ausstehend: "Ausstehend", generiert: "Vertrag generiert" };
+  const docOpenBtn = (docType, label) => `<button type="button" class="btn secondary small doc-open-btn" data-trainer-id="${escapeHtml(t.trainerdaten.trainerId || "")}" data-doc-type="${docType}">${escapeHtml(label)}</button>`;
   renderKvCard("detail-trainerdaten", "Trainerdaten (Vertrag)", [
     ["Status", t.trainerdaten.vorhanden ? escapeHtml(tdStatusLabel[t.trainerdaten.status] || t.trainerdaten.status) : "Kein Datensatz"],
     ["Eingereicht am", escapeHtml(fmtDate(t.trainerdaten.unterschriftAm || t.trainerdaten.erstelltAm))],
     ["Vertrag generiert", t.trainerdaten.vertragsGeneriert ? "Ja" : "Nein"],
     ["Führerschein", t.trainerdaten.fuehrerscheinHochgeladenAm
-      ? `${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrerscheinHochgeladenAm))} · ${t.trainerdaten.fuehrerscheinGueltig ? badge("ok", "Gültig bis " + fmtDateOnly(t.trainerdaten.fuehrerscheinGueltigBis)) : badge("fehlt", "Abgelaufen")}`
+      ? `${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrerscheinHochgeladenAm))} · ${t.trainerdaten.fuehrerscheinGueltig ? badge("ok", "Gültig bis " + fmtDateOnly(t.trainerdaten.fuehrerscheinGueltigBis)) : badge("fehlt", "Abgelaufen")} ${docOpenBtn("fuehrerschein", "Führerschein öffnen")}`
       : badge("fehlt", "Kein Führerschein hinterlegt")],
     ["Führungszeugnis", t.trainerdaten.fuehrungszeugnisEingereichtAm
-      ? "Eingereicht am " + escapeHtml(fmtDateOnly(t.trainerdaten.fuehrungszeugnisEingereichtAm))
+      ? `Eingereicht am ${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrungszeugnisEingereichtAm))} ${docOpenBtn("fuehrungszeugnis", "Führungszeugnis öffnen")}`
       : badge("fehlt", "Noch nicht eingereicht")]
   ]);
   document.getElementById("detail-trainerdaten").innerHTML += `<p class="muted">IBAN/Adresse werden hier bewusst nicht angezeigt — Details nur in Trainerdaten selbst.</p><div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.trainerdaten}" target="_blank" rel="noopener">Trainerdaten öffnen</a></div>`;
@@ -250,6 +251,29 @@ function renderDetail(t) {
        <div class="btn-row" style="justify-content:flex-start; margin-top:10px;"><button type="button" class="btn success" id="btn-reactivate">Reaktivieren</button></div>`
     : `<h2>Archivieren</h2><p class="muted">Sperrt den Login des zentralen Kontos sofort. Gruppenzugehörigkeiten bleiben erhalten.</p>
        <div class="btn-row" style="justify-content:flex-start; margin-top:10px;"><button type="button" class="btn danger" id="btn-archive">Archivieren</button></div>`;
+}
+
+// Öffnet Führerschein/Führungszeugnis direkt als Blob in einem neuen Tab (gleiche
+// Konvention wie Trainerdatens eigenes _ansehenDocumentAdmin: verzögertes revoke,
+// da sofortiges Freigeben die Anzeige auf manchen Browsern abbricht).
+async function openTrainerdatenDocument(btn) {
+  const trainerId = btn.dataset.trainerId;
+  const docType = btn.dataset.docType;
+  if (!trainerId) { alert("Keine Trainerdaten-Zuordnung gefunden."); return; }
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Lade…";
+  try {
+    const blob = await fetchTrainerdatenDocument(trainerId, docType);
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  } catch (e) {
+    alert("Datei nicht abrufbar: " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
 }
 
 function openDetail(username, fromTab) {
@@ -337,6 +361,10 @@ async function init() {
   document.getElementById("detail-actions").addEventListener("click", (e) => {
     if (e.target.closest("#btn-archive")) doArchive(currentDetailUsername);
     else if (e.target.closest("#btn-reactivate")) doReactivate(currentDetailUsername);
+  });
+  document.getElementById("detail-trainerdaten").addEventListener("click", (e) => {
+    const btn = e.target.closest(".doc-open-btn");
+    if (btn) openTrainerdatenDocument(btn);
   });
 
   if (!getSessionToken()) {

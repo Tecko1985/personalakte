@@ -1,6 +1,18 @@
-const APP_VERSION = "1.1";
+const APP_VERSION = "1.2";
 
 const APP_CHANGELOG = [
+  {
+    version: "1.2",
+    groups: [
+      {
+        title: "Dokumente direkt öffnen",
+        items: [
+          "„Führerschein öffnen“ und „Führungszeugnis öffnen“ direkt in der Trainerdaten-Karte, statt erst in Trainerdaten selbst nachschauen zu müssen.",
+          "Führungszeugnis bleibt dabei weiterhin nur für Admins einsehbar, Führerschein für Admins und die Gruppe „Führerschein Einsicht“ — gleiche Rechte wie in Trainerdaten selbst."
+        ]
+      }
+    ]
+  },
   {
     version: "1.1",
     groups: [

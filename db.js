@@ -7,6 +7,13 @@ const GATEWAY_URL = "https://landingpage.michel-brunner.workers.dev";
 const TOKEN_STORAGE_KEY = "tu_session_token";
 const GATEWAY_APP_ID = "personalakte";
 
+// Direkter Aufruf von Trainerdatens eigenem Worker (nicht über das Gateway hier) --
+// Führerschein-/Führungszeugnis-Dateien laufen bewusst nicht über PROVISION_ONLY_PATHS
+// (das würde IBAN-nahe Zugriffe generisch öffnen), sondern über Trainerdatens native
+// Aktionen (Admin bzw. Gruppe fuehrerschein-einsicht für Führerschein, nur Admin für
+// Führungszeugnis), siehe E:\Trainerdaten\submit-worker.js und dessen CLAUDE.md.
+const TRAINERDATEN_WORKER_URL = "https://trainerdaten1.michel-brunner.workers.dev";
+
 class NotLoggedInError extends Error {
   constructor(message) {
     super(message || "Nicht angemeldet");
@@ -58,4 +65,26 @@ async function archiveTrainer(username, grund) {
 
 async function reactivateTrainer(username) {
   return gatewayRequest({ action: "reactivate-trainer", username });
+}
+
+// Führerschein- oder Führungszeugnis-Datei eines Trainers als Blob laden (docType:
+// "fuehrerschein"|"fuehrungszeugnis"). Ruft NICHT das Gateway hier, sondern direkt
+// Trainerdatens eigenen Worker mit demselben Bearer-Token -- der prüft Admin/Gruppe
+// selbst (403, falls nicht berechtigt).
+async function fetchTrainerdatenDocument(trainerId, docType) {
+  const token = getSessionToken();
+  if (!token) throw new NotLoggedInError();
+  const action = docType === "fuehrerschein" ? "fuehrerschein-file-for-owner" : "fuehrungszeugnis-file-for-owner";
+  const resp = await fetch(TRAINERDATEN_WORKER_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+    body: JSON.stringify({ action, trainerId })
+  });
+  if (resp.status === 401) throw new NotLoggedInError("Sitzung abgelaufen");
+  if (resp.status === 403) throw new Error(docType === "fuehrerschein"
+    ? "Kein Zugriff — nur Admin oder Gruppe „Führerschein Einsicht“ dürfen das ansehen."
+    : "Kein Zugriff — Führungszeugnisse darf nur ein Admin ansehen.");
+  if (resp.status === 404) throw new Error("Datei nicht gefunden.");
+  if (!resp.ok) throw new Error(`Trainerdaten-Fehler (HTTP ${resp.status})`);
+  return resp.blob();
 }
