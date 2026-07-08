@@ -1,6 +1,18 @@
-const APP_VERSION = "1.4";
+const APP_VERSION = "1.5";
 
 const APP_CHANGELOG = [
+  {
+    version: "1.5",
+    groups: [
+      {
+        title: "Geburtsdatum/Adresse/Kontakt aus Trainerdaten",
+        items: [
+          "Die Trainerdaten-Karte zeigt jetzt zusätzlich Geburtsdatum, Adresse, Telefonnummer und E-Mail-Adresse an.",
+          "IBAN/Bankverbindung bleiben weiterhin ausgeblendet."
+        ]
+      }
+    ]
+  },
   {
     version: "1.4",
     groups: [

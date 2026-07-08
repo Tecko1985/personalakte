@@ -38,6 +38,14 @@ function fmtDateOnly(iso) {
   return d.toLocaleDateString("de-DE");
 }
 
+// Für reine "YYYY-MM-DD"-Datumsfelder (z.B. Geburtsdatum) ohne Zeitanteil --
+// new Date()+toLocaleDateString würde je nach Browser-Zeitzone einen Tag
+// verschieben, siehe gleiches Muster in Trainerdatens eigenem _fmtDateOnly.
+function fmtBirthdate(isoDate) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate || "");
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : "—";
+}
+
 function fullName(t) {
   return `${t.vorname || ""} ${t.nachname || ""}`.trim() || t.username;
 }
@@ -203,10 +211,18 @@ function renderDetail(t) {
       </div>
       ${btnHtml}
     </div>`;
+  const tdAdresseParts = [
+    t.trainerdaten.strasse || "",
+    [t.trainerdaten.plz, t.trainerdaten.ort].filter(Boolean).join(" ")
+  ].filter(Boolean);
   renderKvCard("detail-trainerdaten", "Trainerdaten (Vertrag)", [
     ["Status", t.trainerdaten.vorhanden ? escapeHtml(tdStatusLabel[t.trainerdaten.status] || t.trainerdaten.status) : "Kein Datensatz"],
     ["Eingereicht am", escapeHtml(fmtDate(t.trainerdaten.unterschriftAm || t.trainerdaten.erstelltAm))],
-    ["Vertrag generiert", t.trainerdaten.vertragsGeneriert ? "Ja" : "Nein"]
+    ["Vertrag generiert", t.trainerdaten.vertragsGeneriert ? "Ja" : "Nein"],
+    ["Geburtsdatum", fmtBirthdate(t.trainerdaten.geburtsdatum)],
+    ["Adresse", escapeHtml(tdAdresseParts.join(", ") || "—")],
+    ["Telefon", escapeHtml(t.trainerdaten.telefon || "—")],
+    ["E-Mail", escapeHtml(t.trainerdaten.email || "—")]
   ]);
   const docStatusHtml =
     docStatusRow("Führerschein",
@@ -221,7 +237,7 @@ function renderDetail(t) {
       t.trainerdaten.fuehrungszeugnisEingereichtAm ? docOpenBtn("fuehrungszeugnis", "Führungszeugnis öffnen") : "");
   document.getElementById("detail-trainerdaten").innerHTML += `
     <div class="doc-status-section">${docStatusHtml}</div>
-    <p class="muted">IBAN/Adresse werden hier bewusst nicht angezeigt — Details nur in Trainerdaten selbst.</p>
+    <p class="muted">IBAN/Bankverbindung werden hier bewusst nicht angezeigt — Details nur in Trainerdaten selbst.</p>
     <div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.trainerdaten}" target="_blank" rel="noopener">Trainerdaten öffnen</a></div>`;
 
   renderKvCard("detail-trainercheckliste", "TrainerCheckliste (Zugang/Abgang)", [
