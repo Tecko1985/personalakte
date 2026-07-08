@@ -195,18 +195,34 @@ function renderDetail(t) {
 
   const tdStatusLabel = { unvollstaendig: "Unvollständig", ausstehend: "Ausstehend", generiert: "Vertrag generiert" };
   const docOpenBtn = (docType, label) => `<button type="button" class="btn secondary small doc-open-btn" data-trainer-id="${escapeHtml(t.trainerdaten.trainerId || "")}" data-doc-type="${docType}">${escapeHtml(label)}</button>`;
+  const docStatusRow = (label, valueHtml, btnHtml) => `
+    <div class="doc-status-row">
+      <div class="doc-status-info">
+        <span class="doc-status-label">${escapeHtml(label)}</span>
+        <span class="doc-status-value">${valueHtml}</span>
+      </div>
+      ${btnHtml}
+    </div>`;
   renderKvCard("detail-trainerdaten", "Trainerdaten (Vertrag)", [
     ["Status", t.trainerdaten.vorhanden ? escapeHtml(tdStatusLabel[t.trainerdaten.status] || t.trainerdaten.status) : "Kein Datensatz"],
     ["Eingereicht am", escapeHtml(fmtDate(t.trainerdaten.unterschriftAm || t.trainerdaten.erstelltAm))],
-    ["Vertrag generiert", t.trainerdaten.vertragsGeneriert ? "Ja" : "Nein"],
-    ["Führerschein", t.trainerdaten.fuehrerscheinHochgeladenAm
-      ? `${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrerscheinHochgeladenAm))} · ${t.trainerdaten.fuehrerscheinGueltig ? badge("ok", "Gültig bis " + fmtDateOnly(t.trainerdaten.fuehrerscheinGueltigBis)) : badge("fehlt", "Abgelaufen")} ${docOpenBtn("fuehrerschein", "Führerschein öffnen")}`
-      : badge("fehlt", "Kein Führerschein hinterlegt")],
-    ["Führungszeugnis", t.trainerdaten.fuehrungszeugnisEingereichtAm
-      ? `Eingereicht am ${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrungszeugnisEingereichtAm))} ${docOpenBtn("fuehrungszeugnis", "Führungszeugnis öffnen")}`
-      : badge("fehlt", "Noch nicht eingereicht")]
+    ["Vertrag generiert", t.trainerdaten.vertragsGeneriert ? "Ja" : "Nein"]
   ]);
-  document.getElementById("detail-trainerdaten").innerHTML += `<p class="muted">IBAN/Adresse werden hier bewusst nicht angezeigt — Details nur in Trainerdaten selbst.</p><div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.trainerdaten}" target="_blank" rel="noopener">Trainerdaten öffnen</a></div>`;
+  const docStatusHtml =
+    docStatusRow("Führerschein",
+      t.trainerdaten.fuehrerscheinHochgeladenAm
+        ? `${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrerscheinHochgeladenAm))} · ${t.trainerdaten.fuehrerscheinGueltig ? badge("ok", "Gültig bis " + fmtDateOnly(t.trainerdaten.fuehrerscheinGueltigBis)) : badge("fehlt", "Abgelaufen")}`
+        : badge("fehlt", "Kein Führerschein hinterlegt"),
+      t.trainerdaten.fuehrerscheinHochgeladenAm ? docOpenBtn("fuehrerschein", "Führerschein öffnen") : "") +
+    docStatusRow("Führungszeugnis",
+      t.trainerdaten.fuehrungszeugnisEingereichtAm
+        ? `Eingereicht am ${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrungszeugnisEingereichtAm))}`
+        : badge("fehlt", "Noch nicht eingereicht"),
+      t.trainerdaten.fuehrungszeugnisEingereichtAm ? docOpenBtn("fuehrungszeugnis", "Führungszeugnis öffnen") : "");
+  document.getElementById("detail-trainerdaten").innerHTML += `
+    <div class="doc-status-section">${docStatusHtml}</div>
+    <p class="muted">IBAN/Adresse werden hier bewusst nicht angezeigt — Details nur in Trainerdaten selbst.</p>
+    <div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.trainerdaten}" target="_blank" rel="noopener">Trainerdaten öffnen</a></div>`;
 
   renderKvCard("detail-trainercheckliste", "TrainerCheckliste (Zugang/Abgang)", [
     ["Zugang", t.trainercheckliste.zugang.abgeschlossen ? badge("ok", "Abgeschlossen") : badge("offen", "Offen")],

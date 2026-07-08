@@ -1,6 +1,17 @@
-const APP_VERSION = "1.3";
+const APP_VERSION = "1.4";
 
 const APP_CHANGELOG = [
+  {
+    version: "1.4",
+    groups: [
+      {
+        title: "Führerschein/Führungszeugnis übersichtlicher",
+        items: [
+          "Führerschein und Führungszeugnis stehen jetzt als eigene, untereinander angeordnete Zeilen statt gemeinsam mit Status/Vertrag im selben Raster."
+        ]
+      }
+    ]
+  },
   {
     version: "1.3",
     groups: [

@@ -200,6 +200,21 @@ button.btn:disabled { opacity: 0.6; cursor: default; }
 .kv-item { display: flex; flex-direction: column; gap: 2px; }
 .kv-item .kv-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
 .kv-item .kv-value { font-size: 14px; }
+
+.doc-status-section { margin-top: 14px; }
+.doc-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.doc-status-row:first-child { border-top: none; padding-top: 0; }
+.doc-status-info { display: flex; flex-direction: column; gap: 2px; }
+.doc-status-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+.doc-status-value { font-size: 14px; }
 .kadermanager-team {
   display: flex;
   justify-content: space-between;
