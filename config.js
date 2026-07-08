@@ -1,6 +1,18 @@
-const APP_VERSION = "1.0";
+const APP_VERSION = "1.1";
 
 const APP_CHANGELOG = [
+  {
+    version: "1.1",
+    groups: [
+      {
+        title: "Führerschein/Führungszeugnis aus Trainerdaten",
+        items: [
+          "Die Trainerdaten-Karte zeigt jetzt zusätzlich Führerschein- (inkl. Gültigkeit) und Führungszeugnis-Status.",
+          "Die separate Fahrtenbuch-Karte entfällt — das Führerschein-Register ist dorthin migriert, siehe Trainerdaten."
+        ]
+      }
+    ]
+  },
   {
     version: "1.0",
     groups: [

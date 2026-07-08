@@ -16,8 +16,7 @@ const SOURCE_URLS = {
   trainerdaten: "https://tecko1985.github.io/Trainerdaten/",
   trainercheckliste: "https://tecko1985.github.io/TrainerCheckliste/",
   personalkosten: "https://tecko1985.github.io/Personalkosten/",
-  kadermanager: "https://tecko1985.github.io/kadermanager/",
-  fahrtenbuch: "https://tecko1985.github.io/fahrtenbuch/"
+  kadermanager: "https://tecko1985.github.io/kadermanager/"
 };
 
 function escapeHtml(s) {
@@ -202,7 +201,13 @@ function renderDetail(t) {
   renderKvCard("detail-trainerdaten", "Trainerdaten (Vertrag)", [
     ["Status", t.trainerdaten.vorhanden ? escapeHtml(tdStatusLabel[t.trainerdaten.status] || t.trainerdaten.status) : "Kein Datensatz"],
     ["Eingereicht am", escapeHtml(fmtDate(t.trainerdaten.unterschriftAm || t.trainerdaten.erstelltAm))],
-    ["Vertrag generiert", t.trainerdaten.vertragsGeneriert ? "Ja" : "Nein"]
+    ["Vertrag generiert", t.trainerdaten.vertragsGeneriert ? "Ja" : "Nein"],
+    ["Führerschein", t.trainerdaten.fuehrerscheinHochgeladenAm
+      ? `${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrerscheinHochgeladenAm))} · ${t.trainerdaten.fuehrerscheinGueltig ? badge("ok", "Gültig bis " + fmtDateOnly(t.trainerdaten.fuehrerscheinGueltigBis)) : badge("fehlt", "Abgelaufen")}`
+      : badge("fehlt", "Kein Führerschein hinterlegt")],
+    ["Führungszeugnis", t.trainerdaten.fuehrungszeugnisEingereichtAm
+      ? "Eingereicht am " + escapeHtml(fmtDateOnly(t.trainerdaten.fuehrungszeugnisEingereichtAm))
+      : badge("fehlt", "Noch nicht eingereicht")]
   ]);
   document.getElementById("detail-trainerdaten").innerHTML += `<p class="muted">IBAN/Adresse werden hier bewusst nicht angezeigt — Details nur in Trainerdaten selbst.</p><div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.trainerdaten}" target="_blank" rel="noopener">Trainerdaten öffnen</a></div>`;
 
@@ -238,18 +243,6 @@ function renderDetail(t) {
     kmCard.innerHTML = `<h2>Kadermanager</h2><p class="detail-quelle-fehlt">In keinem Team als Kader-Mitglied gefunden.</p>`;
   }
   kmCard.innerHTML += `<div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.kadermanager}" target="_blank" rel="noopener">Kadermanager öffnen</a></div>`;
-
-  const fbCard = document.getElementById("detail-fahrtenbuch");
-  if (t.fahrtenbuch) {
-    renderKvCard("detail-fahrtenbuch", "Fahrtenbuch (Führerschein)", [
-      ["Hinterlegt am", escapeHtml(fmtDateOnly(t.fahrtenbuch.hochgeladenAm))],
-      ["Gültig bis", escapeHtml(fmtDateOnly(t.fahrtenbuch.gueltigBis))],
-      ["Status", t.fahrtenbuch.gueltig ? badge("ok", "Gültig") : badge("fehlt", "Abgelaufen")]
-    ]);
-  } else {
-    fbCard.innerHTML = `<h2>Fahrtenbuch (Führerschein)</h2><p class="detail-quelle-fehlt">Kein Führerschein hinterlegt.</p>`;
-  }
-  fbCard.innerHTML += `<div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.fahrtenbuch}" target="_blank" rel="noopener">Fahrtenbuch öffnen</a></div>`;
 
   const actions = document.getElementById("detail-actions");
   actions.innerHTML = t.archiviert
