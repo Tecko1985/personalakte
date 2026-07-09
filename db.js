@@ -67,14 +67,19 @@ async function reactivateTrainer(username) {
   return gatewayRequest({ action: "reactivate-trainer", username });
 }
 
-// Führerschein- oder Führungszeugnis-Datei eines Trainers als Blob laden (docType:
-// "fuehrerschein"|"fuehrungszeugnis"). Ruft NICHT das Gateway hier, sondern direkt
-// Trainerdatens eigenen Worker mit demselben Bearer-Token -- der prüft Admin/Gruppe
-// selbst (403, falls nicht berechtigt).
+// Trainerlizenz-/Führerschein- oder Führungszeugnis-Datei eines Trainers als Blob
+// laden (docType: "trainerlizenz"|"fuehrerschein"|"fuehrungszeugnis"). Ruft NICHT
+// das Gateway hier, sondern direkt Trainerdatens eigenen Worker mit demselben
+// Bearer-Token -- der prüft Admin/Gruppe selbst (403, falls nicht berechtigt).
+const TRAINERDATEN_DOC_ACTIONS = {
+  trainerlizenz: "trainerlizenz-file-for-owner",
+  fuehrerschein: "fuehrerschein-file-for-owner",
+  fuehrungszeugnis: "fuehrungszeugnis-file-for-owner"
+};
 async function fetchTrainerdatenDocument(trainerId, docType) {
   const token = getSessionToken();
   if (!token) throw new NotLoggedInError();
-  const action = docType === "fuehrerschein" ? "fuehrerschein-file-for-owner" : "fuehrungszeugnis-file-for-owner";
+  const action = TRAINERDATEN_DOC_ACTIONS[docType];
   const resp = await fetch(TRAINERDATEN_WORKER_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
@@ -83,7 +88,7 @@ async function fetchTrainerdatenDocument(trainerId, docType) {
   if (resp.status === 401) throw new NotLoggedInError("Sitzung abgelaufen");
   if (resp.status === 403) throw new Error(docType === "fuehrerschein"
     ? "Kein Zugriff — nur Admin oder Gruppe „Führerschein Einsicht“ dürfen das ansehen."
-    : "Kein Zugriff — Führungszeugnisse darf nur ein Admin ansehen.");
+    : "Kein Zugriff — das darf nur ein Admin ansehen.");
   if (resp.status === 404) throw new Error("Datei nicht gefunden.");
   if (!resp.ok) throw new Error(`Trainerdaten-Fehler (HTTP ${resp.status})`);
   return resp.blob();

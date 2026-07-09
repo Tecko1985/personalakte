@@ -1,6 +1,17 @@
-const APP_VERSION = "1.0";
+const APP_VERSION = "1.1";
 
 const APP_CHANGELOG = [
+  {
+    version: "1.1",
+    groups: [
+      {
+        title: "Trainerdaten",
+        items: [
+          "Trainerlizenz-Status (Dokument-Scan) ergänzt und direkt öffenbar — an derselben Stelle wie Führerschein/Führungszeugnis, Rechte serverseitig geprüft (nur Admin)."
+        ]
+      }
+    ]
+  },
   {
     version: "1.0",
     groups: [

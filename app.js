@@ -225,6 +225,11 @@ function renderDetail(t) {
     ["E-Mail", escapeHtml(t.trainerdaten.email || "—")]
   ]);
   const docStatusHtml =
+    docStatusRow("Trainerlizenz",
+      t.trainerdaten.trainerlizenzHochgeladenAm
+        ? escapeHtml(`Hochgeladen am ${fmtDateOnly(t.trainerdaten.trainerlizenzHochgeladenAm)}`)
+        : badge("fehlt", "Keine Trainerlizenz hinterlegt"),
+      t.trainerdaten.trainerlizenzHochgeladenAm ? docOpenBtn("trainerlizenz", "Trainerlizenz öffnen") : "") +
     docStatusRow("Führerschein",
       t.trainerdaten.fuehrerscheinHochgeladenAm
         ? `${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrerscheinHochgeladenAm))} · ${t.trainerdaten.fuehrerscheinGueltig ? badge("ok", "Gültig bis " + fmtDateOnly(t.trainerdaten.fuehrerscheinGueltigBis)) : badge("fehlt", "Abgelaufen")}`
