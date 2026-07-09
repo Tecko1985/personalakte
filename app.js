@@ -11,7 +11,6 @@ let currentDetailUsername = null;
 let detailReturnTab = "uebersicht";
 
 const SOURCE_URLS = {
-  trainerkodex: "https://tecko1985.github.io/trainerkodex/",
   trainerdaten: "https://tecko1985.github.io/Trainerdaten/",
   trainercheckliste: "https://tecko1985.github.io/TrainerCheckliste/",
   personalkosten: "https://tecko1985.github.io/Personalkosten/",
@@ -199,7 +198,10 @@ function renderDetail(t) {
     ["Bestätigt", t.trainerkodex.bestaetigt ? badge("ok", "Ja") : badge("offen", "Noch nicht")],
     ["Datum", escapeHtml(fmtDate(t.trainerkodex.datum))]
   ]);
-  document.getElementById("detail-trainerkodex").innerHTML += `<div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.trainerkodex}" target="_blank" rel="noopener">Trainerkodex öffnen</a></div>`;
+  // Trainerkodex ist seit Trainerdaten 1.6 kein eigenes Tool mehr, sondern Teil von
+  // Trainerdaten (siehe [[project-trainerkodex]]) -- Link zeigt daher jetzt dorthin
+  // statt auf die verwaiste eigenständige App.
+  document.getElementById("detail-trainerkodex").innerHTML += `<div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.trainerdaten}" target="_blank" rel="noopener">In Trainerdaten öffnen</a></div>`;
 
   const tdStatusLabel = { unvollstaendig: "Unvollständig", ausstehend: "Ausstehend", generiert: "Vertrag generiert" };
   const docOpenBtn = (docType, label) => `<button type="button" class="btn secondary small doc-open-btn" data-trainer-id="${escapeHtml(t.trainerdaten.trainerId || "")}" data-doc-type="${docType}">${escapeHtml(label)}</button>`;
