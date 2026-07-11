@@ -137,7 +137,7 @@ function renderUebersicht() {
       </div>
       <div class="trainer-row-badges">
         ${t.trainerkodex.bestaetigt ? badge("ok", "Kodex ✓") : badge("offen", "Kodex offen")}
-        ${t.trainerdaten.vertragsGeneriert ? badge("ok", "Vertrag ✓") : (t.trainerdaten.vorhanden ? badge("offen", "Vertrag ausstehend") : badge("fehlt", "Trainerdaten fehlen"))}
+        ${t.trainerdaten.status === "generiert" ? badge("ok", "Vertrag ✓") : (t.trainerdaten.vorhanden ? badge("offen", "Vertrag ausstehend") : badge("fehlt", "Trainerdaten fehlen"))}
         ${trainercheckisteBadges(t)}
       </div>
     </div>
@@ -220,7 +220,11 @@ function renderDetail(t) {
   renderKvCard("detail-trainerdaten", "Trainerdaten (Vertrag)", [
     ["Status", t.trainerdaten.vorhanden ? escapeHtml(tdStatusLabel[t.trainerdaten.status] || t.trainerdaten.status) : "Kein Datensatz"],
     ["Eingereicht am", escapeHtml(fmtDate(t.trainerdaten.unterschriftAm || t.trainerdaten.erstelltAm))],
-    ["Vertrag generiert", t.trainerdaten.vertragsGeneriert ? "Ja" : "Nein"],
+    ["Vertrag", t.trainerdaten.vertragUnterschriebenAm
+      ? "Unterschrieben am " + escapeHtml(fmtDate(t.trainerdaten.vertragUnterschriebenAm))
+      : (t.trainerdaten.vertragPdfBereitgestelltAm
+          ? "Bereitgestellt am " + escapeHtml(fmtDate(t.trainerdaten.vertragPdfBereitgestelltAm)) + " (noch nicht unterschrieben)"
+          : (t.trainerdaten.vertragsGeneriert ? "Word-Vertrag generiert" : "Nein"))],
     ["Geburtsdatum", fmtBirthdate(t.trainerdaten.geburtsdatum)],
     ["Adresse", escapeHtml(tdAdresseParts.join(", ") || "—")],
     ["Telefon", escapeHtml(t.trainerdaten.telefon || "—")],

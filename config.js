@@ -1,6 +1,17 @@
-const APP_VERSION = "1.0";
+const APP_VERSION = "1.2";
 
 const APP_CHANGELOG = [
+  {
+    version: "1.2",
+    groups: [
+      {
+        title: "Bugfix",
+        items: [
+          "„Vertrag ausstehend" wurde auch für bereits digital unterschriebene Trainerverträge angezeigt — Personalakte las noch die Felder aus der Zeit vor dem digitalen Unterschreiben-Workflow in Trainerdaten. Zeigt Vertragsstatus jetzt korrekt an, inkl. Bereitgestellt-/Unterschrieben-Datum in der Detailansicht."
+        ]
+      }
+    ]
+  },
   {
     version: "1.1",
     groups: [
