@@ -119,14 +119,22 @@ function trainercheckisteBadges(t) {
   return zugang + abgang;
 }
 
-function renderUebersicht() {
-  const wrap = document.getElementById("uebersicht-rows");
+// Suche/Lizenzfilter + Sortierung — einzige Quelle für "was ist gerade sichtbar",
+// genutzt von renderUebersicht() (Bildschirmliste) UND vom CSV-Export
+// (exportTrainerCsv), damit beide garantiert dieselbe Menge zeigen/exportieren.
+function filteredTrainers() {
   const suche = ubersichtSuche.trim().toLowerCase();
-  const rows = allTrainers
+  return allTrainers
     .filter((t) => !t.archiviert)
     .filter((t) => !ubersichtLizenz || t.lizenz === ubersichtLizenz)
     .filter((t) => !suche || fullName(t).toLowerCase().includes(suche))
     .sort((a, b) => a.nachname.localeCompare(b.nachname, "de"));
+}
+
+function renderUebersicht() {
+  const wrap = document.getElementById("uebersicht-rows");
+  const rows = filteredTrainers();
+  updateExportInfoLine();
 
   document.getElementById("uebersicht-empty").style.display = rows.length ? "none" : "block";
   wrap.innerHTML = rows.map((t) => `
@@ -142,6 +150,108 @@ function renderUebersicht() {
       </div>
     </div>
   `).join("");
+}
+
+// ---------- CSV-Export (konfigurierbar) ----------
+// Jedes Feld einzeln per Checkbox wählbar (EXPORT_FIELD_GROUPS in config.js).
+// Exportiert immer genau die aktuell gefilterte/gesuchte Übersicht (filteredTrainers()) —
+// die Archiv-Liste hat einen eigenen Filter/eigene Ansicht und ist bewusst nicht Teil
+// dieses Exports.
+function getPath(obj, path) {
+  return path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), obj);
+}
+function initExportPanel() {
+  renderExportFieldCheckboxes();
+  document.getElementById("btn-export-toggle").addEventListener("click", () => {
+    const panel = document.getElementById("export-panel");
+    const willOpen = panel.style.display === "none";
+    panel.style.display = willOpen ? "" : "none";
+    if (willOpen) updateExportInfoLine();
+  });
+  document.getElementById("btn-export-felder-alle").addEventListener("click", () => setAllExportCheckboxes(true));
+  document.getElementById("btn-export-felder-keine").addEventListener("click", () => setAllExportCheckboxes(false));
+  document.getElementById("btn-export-csv").addEventListener("click", exportTrainerCsv);
+}
+function renderExportFieldCheckboxes() {
+  const wrap = document.getElementById("export-field-groups");
+  wrap.innerHTML = EXPORT_FIELD_GROUPS.map((group) => `
+    <div style="font-size:13px; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:0.3px; margin:14px 0 8px;">${escapeHtml(group.title)}</div>
+    <div class="kv-grid">
+      ${group.fields.map((f) => `
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+          <input type="checkbox" class="export-field-cb" data-field="${escapeHtml(f.key)}" checked /> ${escapeHtml(f.label)}
+        </label>
+      `).join("")}
+    </div>
+  `).join("");
+  wrap.querySelectorAll(".export-field-cb").forEach((cb) => cb.addEventListener("change", updateExportInfoLine));
+}
+function setAllExportCheckboxes(checked) {
+  document.querySelectorAll(".export-field-cb").forEach((cb) => { cb.checked = checked; });
+  updateExportInfoLine();
+}
+function updateExportInfoLine() {
+  const el = document.getElementById("export-info-line");
+  if (!el) return;
+  const total = document.querySelectorAll(".export-field-cb").length;
+  const checked = document.querySelectorAll(".export-field-cb:checked").length;
+  const rowCount = filteredTrainers().length;
+  el.textContent = `${checked} von ${total} Feldern ausgewählt · exportiert ${rowCount} Trainer (aktuelle Suche/Filter).`;
+}
+function csvCell(value) {
+  const s = value == null ? "" : String(value);
+  return /[;"\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function csvFmtDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return String(iso);
+  return d.toLocaleDateString("de-DE") + ", " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+}
+function csvFmtDateOnly(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : (iso || "");
+}
+function exportFieldValue(f, t) {
+  if (f.type === "eingereicht") {
+    const v = t.trainerdaten.unterschriftAm || t.trainerdaten.erstelltAm;
+    return v ? csvFmtDate(v) : "";
+  }
+  if (f.type === "tdstatus") {
+    if (!t.trainerdaten.vorhanden) return "Kein Datensatz";
+    const labels = { unvollstaendig: "Unvollständig", ausstehend: "Ausstehend", generiert: "Vertrag generiert" };
+    return labels[t.trainerdaten.status] || t.trainerdaten.status || "";
+  }
+  const v = getPath(t, f.key);
+  switch (f.type) {
+    case "date": return v ? csvFmtDate(v) : "";
+    case "dateonly": return v ? csvFmtDateOnly(v) : "";
+    case "bool": return v ? "Ja" : "Nein";
+    case "join": return Array.isArray(v) ? v.join(", ") : "";
+    case "archivstatus": return v ? "Archiviert" : "Aktiv";
+    default: return v == null ? "" : v;
+  }
+}
+function exportTrainerCsv() {
+  const selectedKeys = Array.from(document.querySelectorAll(".export-field-cb:checked")).map((cb) => cb.dataset.field);
+  if (!selectedKeys.length) { alert("Bitte mindestens ein Feld für den Export auswählen."); return; }
+  const rows = filteredTrainers();
+  if (!rows.length) { alert("Die aktuelle Suche/Filterung ergibt keine Treffer zum Exportieren."); return; }
+
+  const fieldLookup = new Map(EXPORT_FIELD_GROUPS.flatMap((g) => g.fields).map((f) => [f.key, f]));
+  const cols = selectedKeys.map((key) => fieldLookup.get(key)).filter(Boolean);
+  const lines = [cols.map((f) => f.label), ...rows.map((t) => cols.map((c) => exportFieldValue(c, t)))];
+  // Semikolon statt Komma + UTF-8-BOM: deutsches Excel erkennt das Trennzeichen
+  // damit automatisch beim Doppelklick und zeigt Umlaute korrekt.
+  const csv = String.fromCharCode(0xFEFF) + lines.map((line) => line.map(csvCell).join(";")).join("\r\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "personalakte_export_" + new Date().toISOString().slice(0, 10) + ".csv";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 8000);
 }
 
 // ---------- Archiv ----------
@@ -387,6 +497,7 @@ async function init() {
   document.getElementById("filter-suche").addEventListener("input", (e) => { ubersichtSuche = e.target.value; renderUebersicht(); });
   document.getElementById("filter-lizenz").addEventListener("change", (e) => { ubersichtLizenz = e.target.value; renderUebersicht(); });
   document.getElementById("archiv-suche").addEventListener("input", (e) => { archivSuche = e.target.value; renderArchiv(); });
+  initExportPanel();
 
   document.getElementById("uebersicht-rows").addEventListener("click", (e) => {
     const row = e.target.closest(".trainer-row");
