@@ -1,7 +1,10 @@
 let currentUsername = null;
 let currentIsAdmin = false;
+let currentCanEdit = false;
 let currentVorname = null;
 let currentNachname = null;
+
+function canEdit() { return currentIsAdmin || currentCanEdit; }
 
 let allTrainers = [];       // roher trainers[]-Array aus fetchOverview()
 let ubersichtSuche = "";
@@ -395,6 +398,12 @@ function renderDetail(t) {
   kmCard.innerHTML += `<div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.kadermanager}" target="_blank" rel="noopener">Kadermanager öffnen</a></div>`;
 
   const actions = document.getElementById("detail-actions");
+  if (!canEdit()) {
+    actions.innerHTML = t.archiviert
+      ? `<h2>Archiv-Status</h2><p class="muted">Dieses Konto ist archiviert und kann sich nicht anmelden.</p>`
+      : `<h2>Archivieren</h2><p class="muted">Nur mit Bearbeiten-Recht für Personalakte möglich.</p>`;
+    return;
+  }
   actions.innerHTML = t.archiviert
     ? `<h2>Archiv-Status</h2><p class="muted">Dieses Konto ist archiviert und kann sich nicht anmelden.</p>
        <div class="btn-row" style="justify-content:flex-start; margin-top:10px;"><button type="button" class="btn success" id="btn-reactivate">Reaktivieren</button></div>`
@@ -525,6 +534,7 @@ async function init() {
     const me = await fetchMe();
     currentUsername = me.username;
     currentIsAdmin = !!me.isAdmin;
+    currentCanEdit = !!me.canEdit;
     currentVorname = me.vorname || null;
     currentNachname = me.nachname || null;
     await loadOverviewAndRender();

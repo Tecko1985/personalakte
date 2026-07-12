@@ -47,7 +47,7 @@ async function gatewayRequest(payload) {
   return resp.json();
 }
 
-// Liefert {username, isAdmin, groupIds, vorname, nachname, mannschaften} der eingeloggten Person.
+// Liefert {username, isAdmin, groupIds, vorname, nachname, mannschaften, canEdit} der eingeloggten Person.
 async function fetchMe() {
   return gatewayRequest({ action: "me", app: GATEWAY_APP_ID });
 }

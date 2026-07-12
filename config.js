@@ -1,4 +1,4 @@
-const APP_VERSION = "1.3";
+const APP_VERSION = "1.4";
 
 // Konfigurierbarer CSV-Export der Trainer-Übersicht (siehe initExportPanel/
 // exportTrainerCsv in app.js): jedes Feld einzeln per Checkbox an-/abwählbar,
@@ -91,6 +91,17 @@ const EXPORT_FIELD_GROUPS = [
 ];
 
 const APP_CHANGELOG = [
+  {
+    version: "1.4",
+    groups: [
+      {
+        title: "Bearbeiten-Recht",
+        items: [
+          "Archivieren/Reaktivieren jetzt an das Bearbeiten-Recht der Gruppen-Verwaltung gekoppelt (vorher: jeder mit Sichtrecht auf Personalakte konnte auch archivieren)."
+        ]
+      }
+    ]
+  },
   {
     version: "1.3",
     groups: [
