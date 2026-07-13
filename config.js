@@ -1,4 +1,4 @@
-const APP_VERSION = "1.4";
+const APP_VERSION = "1.0";
 
 // Konfigurierbarer CSV-Export der Trainer-Übersicht (siehe initExportPanel/
 // exportTrainerCsv in app.js): jedes Feld einzeln per Checkbox an-/abwählbar,
