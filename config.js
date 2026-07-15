@@ -92,6 +92,17 @@ const EXPORT_FIELD_GROUPS = [
 
 const APP_CHANGELOG = [
   {
+    version: "1.5",
+    groups: [
+      {
+        title: "Trainerkodex & Jugendschutz",
+        items: [
+          "Die Detailansicht zeigt jetzt auch den Jugendschutzkonzept-Status (bestätigt am / gültig bis) — bisher wurde er gar nicht angezeigt. Die bisherige Trainerkodex-Karte heißt dafür jetzt „Trainerkodex & Jugendschutz“ und zeigt bei beiden zusätzlich die Gültigkeit."
+        ]
+      }
+    ]
+  },
+  {
     version: "1.4",
     groups: [
       {

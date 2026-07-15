@@ -56,6 +56,18 @@ function badge(kind, text) {
   return `<span class="status-badge status-${kind}">${escapeHtml(text)}</span>`;
 }
 
+// Bestätigungs-Status für Trainerkodex/Jugendschutzkonzept: beides sind Selbst-
+// bestätigungen mit befristeter Gültigkeit (aus Trainerdaten) -- gleiche Darstellung
+// wie dort: "Bestätigt am ... · Gültig bis .../Abgelaufen ...".
+function bestaetigungWert(bestaetigtAm, gueltig, gueltigBis) {
+  if (!bestaetigtAm) return badge("offen", "Noch nicht bestätigt");
+  const teil = "Bestätigt am " + escapeHtml(fmtDateOnly(bestaetigtAm));
+  if (!gueltigBis) return teil;
+  return teil + " · " + (gueltig
+    ? badge("ok", "Gültig bis " + fmtDateOnly(gueltigBis))
+    : badge("fehlt", "Abgelaufen " + fmtDateOnly(gueltigBis)));
+}
+
 function renderChangelog() {
   const list = document.getElementById("changelog-list");
   list.innerHTML = APP_CHANGELOG.map((entry) => `
@@ -307,9 +319,9 @@ function renderDetail(t) {
     ["Zuletzt angemeldet", escapeHtml(fmtDate(t.lastLoginAt))]
   ]);
 
-  renderKvCard("detail-trainerkodex", "Trainerkodex", [
-    ["Bestätigt", t.trainerkodex.bestaetigt ? badge("ok", "Ja") : badge("offen", "Noch nicht")],
-    ["Datum", escapeHtml(fmtDate(t.trainerkodex.datum))]
+  renderKvCard("detail-trainerkodex", "Trainerkodex & Jugendschutz", [
+    ["Trainerkodex", bestaetigungWert(t.trainerkodex.datum, t.trainerdaten.kodexGueltig, t.trainerdaten.kodexGueltigBis)],
+    ["Jugendschutzkonzept", bestaetigungWert(t.trainerdaten.jugendschutzBestaetigtAm, t.trainerdaten.jugendschutzGueltig, t.trainerdaten.jugendschutzGueltigBis)]
   ]);
   // Trainerkodex ist seit Trainerdaten 1.6 kein eigenes Tool mehr, sondern Teil von
   // Trainerdaten (siehe [[project-trainerkodex]]) -- Link zeigt daher jetzt dorthin
