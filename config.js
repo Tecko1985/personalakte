@@ -92,6 +92,17 @@ const EXPORT_FIELD_GROUPS = [
 
 const APP_CHANGELOG = [
   {
+    version: "1.6",
+    groups: [
+      {
+        title: "Übersichtsliste",
+        items: [
+          "Die Trainer-Übersicht zeigt jetzt pro Person auch den Führungszeugnis- und Jugendschutzkonzept-Status als Badge (neben Kodex, Vertrag und Checkliste)."
+        ]
+      }
+    ]
+  },
+  {
     version: "1.5",
     groups: [
       {

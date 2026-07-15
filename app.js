@@ -160,6 +160,8 @@ function renderUebersicht() {
       </div>
       <div class="trainer-row-badges">
         ${t.trainerkodex.bestaetigt ? badge("ok", "Kodex ✓") : badge("offen", "Kodex offen")}
+        ${t.trainerdaten.jugendschutzBestaetigtAm ? badge("ok", "Jugendschutz ✓") : badge("offen", "Jugendschutz offen")}
+        ${t.trainerdaten.fuehrungszeugnisEingereichtAm ? badge("ok", "Führungszeugnis ✓") : badge("offen", "Führungszeugnis offen")}
         ${t.trainerdaten.status === "generiert" ? badge("ok", "Vertrag ✓") : (t.trainerdaten.vorhanden ? badge("offen", "Vertrag ausstehend") : badge("fehlt", "Trainerdaten fehlen"))}
         ${trainercheckisteBadges(t)}
       </div>
