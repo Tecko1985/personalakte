@@ -92,6 +92,18 @@ const EXPORT_FIELD_GROUPS = [
 
 const APP_CHANGELOG = [
   {
+    version: "1.7",
+    groups: [
+      {
+        title: "Dokumente löschen",
+        items: [
+          "Trainerlizenz, Führerschein und Führungszeugnis lassen sich jetzt direkt aus der Detailansicht löschen — für den Fall, dass das Hinterlegte unbrauchbar ist (unscharfes Foto, falsche Datei, veralteter Stand) und die Person ein neues Dokument hochladen soll. Danach steht das Dokument bei ihr wieder als offen da.",
+          "Die Datei wird dabei endgültig entfernt. Löschen darf nur ein Admin — bei allen anderen erscheint der Button gar nicht erst."
+        ]
+      }
+    ]
+  },
+  {
     version: "1.6",
     groups: [
       {

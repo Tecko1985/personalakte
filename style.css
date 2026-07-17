@@ -215,6 +215,9 @@ button.btn:disabled { opacity: 0.6; cursor: default; }
 .doc-status-info { display: flex; flex-direction: column; gap: 2px; }
 .doc-status-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
 .doc-status-value { font-size: 14px; }
+/* Öffnen + Löschen nebeneinander am rechten Rand (space-between der Zeile schiebt die
+   Gruppe dorthin); Löschen sieht nur ein Admin, dann steht hier nur ein Button. */
+.doc-status-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .kadermanager-team {
   display: flex;
   justify-content: space-between;

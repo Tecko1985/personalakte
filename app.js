@@ -331,7 +331,20 @@ function renderDetail(t) {
   document.getElementById("detail-trainerkodex").innerHTML += `<div class="detail-source-link"><a class="btn secondary small" href="${SOURCE_URLS.trainerdaten}" target="_blank" rel="noopener">In Trainerdaten öffnen</a></div>`;
 
   const tdStatusLabel = { unvollstaendig: "Unvollständig", ausstehend: "Ausstehend", generiert: "Vertrag generiert" };
-  const docOpenBtn = (docType, label) => `<button type="button" class="btn secondary small doc-open-btn" data-trainer-id="${escapeHtml(t.trainerdaten.trainerId || "")}" data-doc-type="${docType}">${escapeHtml(label)}</button>`;
+  const docTrainerId = escapeHtml(t.trainerdaten.trainerId || "");
+  const docOpenBtn = (docType, label) => `<button type="button" class="btn secondary small doc-open-btn" data-trainer-id="${docTrainerId}" data-doc-type="${docType}">${escapeHtml(label)}</button>`;
+  // Löschen ist unwiderruflich und serverseitig Admin-only (siehe
+  // deleteTrainerdatenDocument in db.js). Anders als die Öffnen-Buttons, die bewusst
+  // jeder sieht und die ein 403 quittieren, bleibt dieser für Nicht-Admins ganz weg:
+  // currentIsAdmin ist hier lokal bekannt, Trainerdatens Sichtgruppe
+  // „fuehrerschein-einsicht" dagegen nicht — ein sichtbarer Löschen-Button, der nur
+  // scheitern kann, wäre schlechter als gar keiner.
+  const docDeleteBtn = (docType, label) => currentIsAdmin
+    ? `<button type="button" class="btn danger small doc-delete-btn" data-trainer-id="${docTrainerId}" data-doc-type="${docType}" data-doc-label="${escapeHtml(label)}">Löschen</button>`
+    : "";
+  const docActions = (docType, label, vorhanden) => vorhanden
+    ? `<div class="doc-status-actions">${docOpenBtn(docType, label + " öffnen")}${docDeleteBtn(docType, label)}</div>`
+    : "";
   const docStatusRow = (label, valueHtml, btnHtml) => `
     <div class="doc-status-row">
       <div class="doc-status-info">
@@ -362,17 +375,17 @@ function renderDetail(t) {
       t.trainerdaten.trainerlizenzHochgeladenAm
         ? escapeHtml(`Hochgeladen am ${fmtDateOnly(t.trainerdaten.trainerlizenzHochgeladenAm)}`)
         : badge("fehlt", "Keine Trainerlizenz hinterlegt"),
-      t.trainerdaten.trainerlizenzHochgeladenAm ? docOpenBtn("trainerlizenz", "Trainerlizenz öffnen") : "") +
+      docActions("trainerlizenz", "Trainerlizenz", t.trainerdaten.trainerlizenzHochgeladenAm)) +
     docStatusRow("Führerschein",
       t.trainerdaten.fuehrerscheinHochgeladenAm
         ? `${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrerscheinHochgeladenAm))} · ${t.trainerdaten.fuehrerscheinGueltig ? badge("ok", "Gültig bis " + fmtDateOnly(t.trainerdaten.fuehrerscheinGueltigBis)) : badge("fehlt", "Abgelaufen")}`
         : badge("fehlt", "Kein Führerschein hinterlegt"),
-      t.trainerdaten.fuehrerscheinHochgeladenAm ? docOpenBtn("fuehrerschein", "Führerschein öffnen") : "") +
+      docActions("fuehrerschein", "Führerschein", t.trainerdaten.fuehrerscheinHochgeladenAm)) +
     docStatusRow("Führungszeugnis",
       t.trainerdaten.fuehrungszeugnisEingereichtAm
         ? `Eingereicht am ${escapeHtml(fmtDateOnly(t.trainerdaten.fuehrungszeugnisEingereichtAm))}`
         : badge("fehlt", "Noch nicht eingereicht"),
-      t.trainerdaten.fuehrungszeugnisEingereichtAm ? docOpenBtn("fuehrungszeugnis", "Führungszeugnis öffnen") : "");
+      docActions("fuehrungszeugnis", "Führungszeugnis", t.trainerdaten.fuehrungszeugnisEingereichtAm));
   document.getElementById("detail-trainerdaten").innerHTML += `
     <div class="doc-status-section">${docStatusHtml}</div>
     <p class="muted">IBAN/Bankverbindung werden hier bewusst nicht angezeigt — Details nur in Trainerdaten selbst.</p>
@@ -465,6 +478,34 @@ async function openTrainerdatenDocument(btn) {
   }
 }
 
+// Löscht ein in Trainerdaten hinterlegtes Dokument (serverseitig Admin-only, siehe
+// deleteTrainerdatenDocument). Zweck ist nicht Aufräumen, sondern der Neuanfang: nach
+// dem Löschen steht der Status wieder auf „nicht hinterlegt", die Person sieht in
+// Trainerdaten wieder eine offene Aufgabe und lädt selbst ein neues Dokument hoch.
+// Danach die komplette Übersicht neu laden statt nur diese Zeile umzuschreiben — die
+// Badges in der Übersichtsliste hängen an denselben Feldern.
+async function removeTrainerdatenDocument(btn) {
+  const trainerId = btn.dataset.trainerId;
+  const docType = btn.dataset.docType;
+  const label = btn.dataset.docLabel || "Dokument";
+  if (!trainerId) { alert("Keine Trainerdaten-Zuordnung gefunden."); return; }
+  const t = allTrainers.find((x) => x.username === currentDetailUsername);
+  if (!confirm(`${label} von ${t ? fullName(t) : "dieser Person"} wirklich löschen? Die Datei wird endgültig entfernt — ein neues Dokument muss die Person selbst in Trainerdaten hochladen.`)) return;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Lösche…";
+  try {
+    await deleteTrainerdatenDocument(trainerId, docType);
+  } catch (e) {
+    alert("Löschen fehlgeschlagen: " + e.message);
+    btn.disabled = false;
+    btn.textContent = originalText;
+    return;
+  }
+  await loadOverviewAndRender();
+  openDetail(currentDetailUsername, detailReturnTab);
+}
+
 function openDetail(username, fromTab) {
   const t = allTrainers.find((x) => x.username === username);
   if (!t) return;
@@ -552,8 +593,10 @@ async function init() {
     else if (e.target.closest("#btn-reactivate")) doReactivate(currentDetailUsername);
   });
   document.getElementById("detail-trainerdaten").addEventListener("click", (e) => {
-    const btn = e.target.closest(".doc-open-btn");
-    if (btn) openTrainerdatenDocument(btn);
+    const openBtn = e.target.closest(".doc-open-btn");
+    if (openBtn) { openTrainerdatenDocument(openBtn); return; }
+    const deleteBtn = e.target.closest(".doc-delete-btn");
+    if (deleteBtn) removeTrainerdatenDocument(deleteBtn);
   });
 
   if (!getSessionToken()) {
