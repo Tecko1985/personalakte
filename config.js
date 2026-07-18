@@ -92,94 +92,29 @@ const EXPORT_FIELD_GROUPS = [
 
 const APP_CHANGELOG = [
   {
-    version: "1.7",
-    groups: [
-      {
-        title: "Dokumente löschen",
-        items: [
-          "Trainerlizenz, Führerschein und Führungszeugnis lassen sich jetzt direkt aus der Detailansicht löschen — für den Fall, dass das Hinterlegte unbrauchbar ist (unscharfes Foto, falsche Datei, veralteter Stand) und die Person ein neues Dokument hochladen soll. Danach steht das Dokument bei ihr wieder als offen da.",
-          "Die Datei wird dabei endgültig entfernt. Löschen darf nur ein Admin — bei allen anderen erscheint der Button gar nicht erst."
-        ]
-      }
-    ]
-  },
-  {
-    version: "1.6",
-    groups: [
-      {
-        title: "Übersichtsliste",
-        items: [
-          "Die Trainer-Übersicht zeigt jetzt pro Person auch den Führungszeugnis- und Jugendschutzkonzept-Status als Badge (neben Kodex, Vertrag und Checkliste)."
-        ]
-      }
-    ]
-  },
-  {
-    version: "1.5",
-    groups: [
-      {
-        title: "Trainerkodex & Jugendschutz",
-        items: [
-          "Die Detailansicht zeigt jetzt auch den Jugendschutzkonzept-Status (bestätigt am / gültig bis) — bisher wurde er gar nicht angezeigt. Die bisherige Trainerkodex-Karte heißt dafür jetzt „Trainerkodex & Jugendschutz“ und zeigt bei beiden zusätzlich die Gültigkeit."
-        ]
-      }
-    ]
-  },
-  {
-    version: "1.4",
-    groups: [
-      {
-        title: "Bearbeiten-Recht",
-        items: [
-          "Archivieren/Reaktivieren jetzt an das Bearbeiten-Recht der Gruppen-Verwaltung gekoppelt (vorher: jeder mit Sichtrecht auf Personalakte konnte auch archivieren)."
-        ]
-      }
-    ]
-  },
-  {
-    version: "1.3",
-    groups: [
-      {
-        title: "CSV-Export",
-        items: [
-          "Neuer Button „CSV-Export…“ in der Trainer-Übersicht – jedes Feld (Stammdaten, Archivierung, Trainerkodex & Jugendschutz, Trainerdaten/Vertrag, Dokumente, TrainerCheckliste, Personalkosten) einzeln per Checkbox wählbar.",
-          "Export berücksichtigt die aktuelle Such-/Lizenzfilter-Einstellung. IBAN/Bankverbindung sind wie überall in Personalakte nicht Teil der Daten."
-        ]
-      }
-    ]
-  },
-  {
-    version: "1.2",
-    groups: [
-      {
-        title: "Bugfix",
-        items: [
-          "„Vertrag ausstehend“ wurde auch für bereits digital unterschriebene Trainerverträge angezeigt — Personalakte las noch die Felder aus der Zeit vor dem digitalen Unterschreiben-Workflow in Trainerdaten. Zeigt Vertragsstatus jetzt korrekt an, inkl. Bereitgestellt-/Unterschrieben-Datum in der Detailansicht."
-        ]
-      }
-    ]
-  },
-  {
-    version: "1.1",
-    groups: [
-      {
-        title: "Trainerdaten",
-        items: [
-          "Trainerlizenz-Status (Dokument-Scan) ergänzt und direkt öffenbar — an derselben Stelle wie Führerschein/Führungszeugnis, Rechte serverseitig geprüft (nur Admin)."
-        ]
-      }
-    ]
-  },
-  {
     version: "1.0",
     groups: [
       {
         title: "Übersicht",
         items: [
-          "Zusammengeführte Ansicht aller Trainer/Nutzerkonten: Lizenz, Mannschaften, Trainerkodex-Status, Trainerdaten (inkl. Geburtsdatum, Adresse, Telefon, E-Mail sowie Führerschein- und Führungszeugnis-Status) und Checkliste Zugang/Abgang auf einen Blick. IBAN/Bankverbindung bleiben bewusst ausgeblendet.",
-          "Führerschein und Führungszeugnis lassen sich direkt aus der Trainerdaten-Karte öffnen — Führungszeugnis nur für Admins, Führerschein für Admins und die Gruppe „Führerschein Einsicht“ (Rechte serverseitig geprüft).",
+          "Zusammengeführte Ansicht aller Trainer/Nutzerkonten: Lizenz, Mannschaften, Trainerkodex-Status, Trainerdaten (inkl. Geburtsdatum, Adresse, Telefon, E-Mail sowie Trainerlizenz-, Führerschein- und Führungszeugnis-Status) und Checkliste Zugang/Abgang auf einen Blick. IBAN/Bankverbindung bleiben bewusst ausgeblendet.",
+          "Trainerkodex- und Jugendschutzkonzept-Status (bestätigt am / gültig bis) direkt in der Detailansicht.",
+          "Die Übersichtsliste zeigt pro Person zusätzlich Führungszeugnis- und Jugendschutzkonzept-Status als Badge (neben Kodex, Vertrag und Checkliste).",
           "Suchfeld und Lizenz-Filter für die Übersichtsliste.",
           "Detailansicht pro Trainer mit allen Quellen (zusätzlich Personalkosten-Saison und Kadermanager-Rolle) — bearbeitet wird weiterhin nur in der jeweiligen Quell-App, die Personalakte selbst ist rein lesende Aggregation."
+        ]
+      },
+      {
+        title: "Dokumente",
+        items: [
+          "Trainerlizenz, Führerschein und Führungszeugnis lassen sich direkt aus der Trainerdaten-Karte öffnen — Führungszeugnis und Trainerlizenz nur für Admins, Führerschein für Admins und die Gruppe „Führerschein Einsicht“ (Rechte serverseitig geprüft).",
+          "Admins können ein unbrauchbares Dokument (unscharfes Foto, falsche Datei, veralteter Stand) direkt löschen — die Person sieht es danach wieder als offen und kann ein neues hochladen."
+        ]
+      },
+      {
+        title: "CSV-Export",
+        items: [
+          "Konfigurierbarer CSV-Export der Trainer-Übersicht – jedes Feld (Stammdaten, Archivierung, Trainerkodex & Jugendschutz, Trainerdaten/Vertrag, Dokumente, TrainerCheckliste, Personalkosten) einzeln per Checkbox wählbar, berücksichtigt die aktuelle Such-/Lizenzfilter-Einstellung. IBAN/Bankverbindung sind wie überall in Personalakte nicht Teil der Daten."
         ]
       },
       {
