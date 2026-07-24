@@ -101,6 +101,7 @@ const APP_CHANGELOG = [
           "Trainerkodex- und Jugendschutzkonzept-Status (bestätigt am / gültig bis) direkt in der Detailansicht.",
           "Die Übersichtsliste zeigt pro Person zusätzlich Führungszeugnis- und Jugendschutzkonzept-Status als Badge (neben Kodex, Vertrag und Checkliste).",
           "Suchfeld und Lizenz-Filter für die Übersichtsliste.",
+          "Der CSV-Export steht nur noch Bearbeitern zur Verfügung — für die reine Sichtgruppe ist der Export-Knopf ausgeblendet.",
           "Detailansicht pro Trainer mit allen Quellen (zusätzlich Personalkosten-Saison und Kadermanager-Rolle) — bearbeitet wird weiterhin nur in der jeweiligen Quell-App, die Personalakte selbst ist rein lesende Aggregation."
         ]
       },

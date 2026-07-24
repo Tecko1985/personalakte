@@ -607,6 +607,10 @@ async function init() {
     currentCanEdit = !!me.canEdit;
     currentVorname = me.vorname || null;
     currentNachname = me.nachname || null;
+    // Export erst ab Bearbeiten (User-Entscheidung 2026-07-24, flottenweite
+    // Umkehr von "Export ist keine Änderung"): die Sichtgruppe darf die
+    // Übersicht ansehen, aber nicht als CSV abziehen.
+    document.getElementById("btn-export-toggle").style.display = canEdit() ? "" : "none";
     await loadOverviewAndRender();
     showApp();
     renderHeaderUser();
